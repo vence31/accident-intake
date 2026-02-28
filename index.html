@@ -384,32 +384,23 @@ body.dark-theme .has-error input,body.dark-theme .has-error select,body.dark-the
 /* HAS-ERROR for accident type group */
 .fld.has-error .accident-type-group { box-shadow: 0 0 0 2px var(--red); border-radius: var(--r); }
 
-/* INJURY SEVERITY METER */
-.injury-meter {
-  margin-bottom: 14px;
+/* INJURY SEVERITY BUTTONS */
+.severity-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;
 }
-.injury-meter-track {
-  display: flex; gap: 4px; margin-bottom: 6px;
+.severity-btn {
+  display: flex; flex-direction: column; align-items: flex-start;
+  padding: 14px 14px; border-radius: var(--r);
+  border: 2px solid var(--border); background: var(--bg2);
+  cursor: pointer; transition: all var(--tr);
+  user-select: none; -webkit-user-select: none;
+  min-height: 70px;
 }
-.injury-seg {
-  flex: 1; height: 8px; border-radius: 4px;
-  background: var(--bg3); cursor: pointer; transition: all var(--tr);
-}
-.injury-seg.active-1 { background: #16a34a; }
-.injury-seg.active-2 { background: #eab308; }
-.injury-seg.active-3 { background: #f97316; }
-.injury-seg.active-4 { background: #ef4444; }
-.injury-seg.active-5 { background: #991b1b; }
-.injury-meter-labels {
-  display: flex; justify-content: space-between;
-  font-family: var(--mono); font-size: 9px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted);
-}
-.injury-meter-val {
-  font-family: var(--mono); font-size: 12px; font-weight: 700;
-  color: var(--blue); text-transform: uppercase; letter-spacing: 0.05em;
-  margin-bottom: 4px;
-}
+.severity-btn:hover { border-color: var(--blue); background: rgba(220,38,38,0.04); }
+.severity-btn.selected { border-color: var(--sev-color); background: var(--sev-bg); box-shadow: 0 0 0 1px var(--sev-color); }
+.sev-emoji { font-size: 20px; margin-bottom: 4px; }
+.sev-name { font-family: var(--font); font-size: 13px; font-weight: 700; color: var(--text); }
+.sev-desc { font-size: 10px; color: var(--muted); margin-top:2px; font-family: var(--body-font); }
 
 /* TERMS */
 .terms-box {
@@ -698,20 +689,41 @@ body.dark-theme .btn-back { background:var(--bg3); color:#94a3b8; }
 
         <div class="fld" id="f-injurySeverity">
           <label class="lbl">Injury Severity</label>
-          <span class="lbl-hint">Click to rate the overall severity of your injuries</span>
-          <div class="injury-meter">
-            <div class="injury-meter-val" id="severityLabel">Select severity below</div>
-            <div class="injury-meter-track">
-              <div class="injury-seg" data-level="1" onclick="setSeverity(1)"></div>
-              <div class="injury-seg" data-level="2" onclick="setSeverity(2)"></div>
-              <div class="injury-seg" data-level="3" onclick="setSeverity(3)"></div>
-              <div class="injury-seg" data-level="4" onclick="setSeverity(4)"></div>
-              <div class="injury-seg" data-level="5" onclick="setSeverity(5)"></div>
+          <span class="lbl-hint">Tap the option that best describes your injuries</span>
+          <div class="severity-grid">
+            <div class="severity-btn" id="sev1" onclick="setSeverity(1)"
+              style="--sev-color:#16a34a;--sev-bg:rgba(22,163,74,0.08)">
+              <div class="sev-emoji">🟢</div>
+              <div class="sev-name">Minor</div>
+              <div class="sev-desc">Pain / Soreness</div>
             </div>
-            <div class="injury-meter-labels"><span>Minor</span><span>Moderate</span><span>Severe</span></div>
+            <div class="severity-btn" id="sev2" onclick="setSeverity(2)"
+              style="--sev-color:#eab308;--sev-bg:rgba(234,179,8,0.08)">
+              <div class="sev-emoji">🟡</div>
+              <div class="sev-name">Moderate</div>
+              <div class="sev-desc">Visible Injury</div>
+            </div>
+            <div class="severity-btn" id="sev3" onclick="setSeverity(3)"
+              style="--sev-color:#f97316;--sev-bg:rgba(249,115,22,0.08)">
+              <div class="sev-emoji">🟠</div>
+              <div class="sev-name">Significant</div>
+              <div class="sev-desc">Ongoing Treatment</div>
+            </div>
+            <div class="severity-btn" id="sev4" onclick="setSeverity(4)"
+              style="--sev-color:#ef4444;--sev-bg:rgba(239,68,68,0.08)">
+              <div class="sev-emoji">🔴</div>
+              <div class="sev-name">Serious</div>
+              <div class="sev-desc">Surgery / Long-term</div>
+            </div>
+            <div class="severity-btn" id="sev5" onclick="setSeverity(5)"
+              style="--sev-color:#991b1b;--sev-bg:rgba(153,27,27,0.1);grid-column:1/-1">
+              <div class="sev-emoji">🚨</div>
+              <div class="sev-name">Critical</div>
+              <div class="sev-desc">Life-altering / Permanent Disability</div>
+            </div>
           </div>
           <input type="hidden" id="injurySeverity" value="">
-          <div class="err">Severity required</div>
+          <div class="err">Please select your injury severity above</div>
         </div>
 
         <div class="fld" id="f-injuries">
@@ -1044,15 +1056,14 @@ body.dark-theme .btn-back { background:var(--bg3); color:#94a3b8; }
     notice.innerHTML = `<div style="background:${bg};border:1px solid ${color}33;border-radius:8px;padding:9px 12px;font-family:var(--mono);font-size:10px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:0.06em;">${msg}</div>`;
   }
 
-  // ===== INJURY SEVERITY METER =====
+  // ===== INJURY SEVERITY BUTTONS =====
   function setSeverity(level) {
     injurySeverityLevel = level;
     document.getElementById('injurySeverity').value = severityLabels[level];
-    document.getElementById('severityLabel').textContent = severityLabels[level];
-    const colorClass = `active-${level}`;
-    document.querySelectorAll('.injury-seg').forEach((seg, i) => {
-      seg.className = 'injury-seg';
-      if (i < level) seg.classList.add(colorClass);
+    // Deselect all, select chosen
+    [1,2,3,4,5].forEach(n => {
+      const btn = document.getElementById('sev' + n);
+      if (btn) btn.classList.toggle('selected', n === level);
     });
     document.getElementById('f-injurySeverity').classList.remove('has-error');
   }
