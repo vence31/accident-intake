@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#ffffff" id="theme-color">
+<title>Accident AI | Elite Case Intake Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== THEME VARIABLES ===== */
+:root {
+  --bg-light: #f8fafc;
+  --bg2-light: #ffffff;
+  --bg3-light: #eef2f6;
+  --blue-light: #dc2626;
+  --blue-dim-light: #b91c1c;
+  --blue-glo-light: rgba(220, 38, 38, 0.25);
+  --green-light: #16a34a;
+  --yellow-light: #eab308;
+  --red-light: #dc2626;
+  --slate-light: #cbd5e1;
+  --text-light: #0f172a;
+  --muted-light: #64748b;
+  --border-light: #e2e8f0;
+
+  --bg-dark: #0a0a0a;
+  --bg2-dark: #111111;
+  --bg3-dark: #1a1a1a;
+  --blue-dark: #ef4444;
+  --blue-dim-dark: #dc2626;
+  --blue-glo-dark: rgba(239, 68, 68, 0.35);
+  --green-dark: #10b981;
+  --yellow-dark: #f59e0b;
+  --red-dark: #ef4444;
+  --slate-dark: #374151;
+  --text-dark: #f9fafb;
+  --muted-dark: #6b7280;
+  --border-dark: rgba(55, 65, 81, 0.6);
+
+  --bg: var(--bg-light);
+  --bg2: var(--bg2-light);
+  --bg3: var(--bg3-light);
+  --blue: var(--blue-light);
+  --blue-dim: var(--blue-dim-light);
+  --blue-glo: var(--blue-glo-light);
+  --green: var(--green-light);
+  --yellow: var(--yellow-light);
+  --red: var(--red-light);
+  --slate: var(--slate-light);
+  --text: var(--text-light);
+  --muted: var(--muted-light);
+  --border: var(--border-light);
+
+  --font: 'Syne', sans-serif;
+  --body-font: 'Inter', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --r: 12px;
+  --tr: 0.22s ease;
+}
+
+body.dark-theme {
+  --bg: var(--bg-dark);
+  --bg2: var(--bg2-dark);
+  --bg3: var(--bg3-dark);
+  --blue: var(--blue-dark);
+  --blue-dim: var(--blue-dim-dark);
+  --blue-glo: var(--blue-glo-dark);
+  --green: var(--green-dark);
+  --yellow: var(--yellow-dark);
+  --red: var(--red-dark);
+  --slate: var(--slate-dark);
+  --text: var(--text-dark);
+  --muted: var(--muted-dark);
+  --border: var(--border-dark);
+}
+
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--body-font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 24px 16px 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 15% 15%, rgba(220, 38, 38, 0.06) 0%, transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(220, 38, 38, 0.04) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 0.3s ease;
+}
+
+body.dark-theme::before {
+  background:
+    radial-gradient(circle at 15% 15%, rgba(220, 38, 38, 0.14) 0%, transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(239, 68, 68, 0.06) 0%, transparent 40%);
+}
+
+/* THEME TOGGLE */
+.theme-toggle-container {
+  position: relative; z-index: 10; width: 100%; max-width: 640px;
+  display: flex; justify-content: flex-end; margin-bottom: 12px;
+}
+.theme-switch {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 40px; padding: 4px; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: all var(--tr);
+}
+.theme-switch:hover { border-color: var(--blue); box-shadow: 0 4px 12px var(--blue-glo); }
+.theme-option {
+  padding: 8px 16px; border-radius: 30px; font-family: var(--mono);
+  font-size: 12px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.05em; transition: all var(--tr); color: var(--muted);
+}
+.theme-option.active { background: var(--blue); color: white; }
+
+/* ALERT BANNER */
+.alert-banner {
+  width: 100%; max-width: 640px; margin-bottom: 14px;
+  background: linear-gradient(135deg, #7f1d1d, #991b1b);
+  border: 1px solid rgba(239,68,68,0.4);
+  border-radius: var(--r);
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em; color: #fca5a5;
+  position: relative; z-index: 1;
+  animation: fadeDown 0.5s ease both;
+}
+.alert-pulse {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #ef4444; flex-shrink: 0;
+  animation: alertPulse 1.5s infinite;
+}
+@keyframes alertPulse {
+  0%,100% { opacity:1; transform:scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0.6); }
+  50% { opacity:0.9; transform:scale(1.2); box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+}
+
+/* HEADER */
+.hdr {
+  width: 100%; max-width: 640px; text-align: center;
+  margin-bottom: 24px; position: relative; z-index: 1;
+  animation: fadeDown 0.5s ease both;
+}
+.hdr h1 {
+  font-family: var(--font);
+  font-size: clamp(26px, 7vw, 40px); font-weight: 800;
+  letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 8px; color: var(--text);
+}
+.hdr h1 span { color: var(--blue); }
+.hdr-badges {
+  display: flex; justify-content: center; gap: 16px;
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted);
+}
+.bdot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; margin-right: 4px; }
+
+/* CASE TYPES ROW */
+.case-types {
+  width: 100%; max-width: 640px; margin-bottom: 14px;
+  display: flex; gap: 6px; flex-wrap: wrap;
+  position: relative; z-index: 1;
+}
+.case-type-badge {
+  padding: 5px 12px; border-radius: 30px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--muted); display: flex; align-items: center; gap: 5px;
+}
+.case-type-badge .ct-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--blue); }
+
+/* SCORE PANEL — hidden from user, data only in payload */
+.score-panel {
+  display: none; /* ATTORNEY EYES ONLY — score goes in payload */
+}
+
+/* CARD */
+.card {
+  width: 100%; max-width: 640px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15);
+  position: relative; z-index: 1;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.prog-line {
+  height: 3px; background: var(--blue);
+  box-shadow: 0 0 10px var(--blue-glo);
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* AUTOSAVE */
+.autosave {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 22px; background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.as-dot { width:6px; height:6px; border-radius:50%; background:var(--slate); transition:background var(--tr); }
+.autosave.saving .as-dot { background:var(--yellow); animation:blink 1s infinite; }
+.autosave.saved .as-dot { background:var(--green); }
+.autosave.saved { color:var(--green); }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:0.2} }
+
+/* STEP PIPS */
+.pip-row { display:flex; padding:18px 22px 0; position:relative; }
+.pip { flex:1; display:flex; flex-direction:column; align-items:center; position:relative; }
+.pip:not(:last-child)::after {
+  content:''; position:absolute; top:13px; left:50%; width:100%; height:1px;
+  background:var(--border); z-index:0; transition:background-color 0.3s ease;
+}
+.pip.done:not(:last-child)::after { background: var(--blue-dim); }
+.pip-c {
+  width:26px; height:26px; border-radius:50%;
+  border:1.5px solid var(--slate); background:var(--bg2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:800; color:var(--muted);
+  transition:all var(--tr); position:relative; z-index:1; font-family:var(--mono);
+}
+.pip.active .pip-c { border-color:var(--blue); background:var(--blue); color:#fff; box-shadow:0 0 14px var(--blue-glo); }
+.pip.done .pip-c { border-color:var(--blue-dim); background:var(--blue-dim); color:#fff; }
+.pip-l { font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-top:5px; display:none; }
+.pip.active .pip-l, .pip.done .pip-l { color:var(--blue); }
+@media(min-width:420px){ .pip-l{display:block} }
+
+/* FORM BODY */
+.form-body { padding: 18px 22px 26px; }
+
+/* STEP */
+.step { display:none; animation:fadeStep 0.32s ease both; }
+.step.active { display:block; }
+@keyframes fadeStep { from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:translateX(0)} }
+
+.step-title { font-family:var(--font); font-size:18px; font-weight:800; color:var(--text); margin-bottom:2px; letter-spacing:-0.02em; }
+.step-sub { font-family:var(--mono); font-size:10px; font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:18px; }
+
+/* NOTICE */
+.notice {
+  background: rgba(220, 38, 38, 0.05); border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: var(--r); padding: 11px 14px; margin-bottom: 18px;
+  font-size: 12px; color: var(--muted); line-height: 1.5;
+  font-family: var(--body-font);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+body.dark-theme .notice { background:rgba(239,68,68,0.07); border:1px solid rgba(239,68,68,0.18); }
+.notice strong { color: var(--blue); }
+
+/* SECTION DIVIDER */
+.sec-divider {
+  display: flex; align-items: center; gap: 10px;
+  margin: 18px 0 14px;
+}
+.sec-divider-line { flex:1; height:1px; background:var(--border); }
+.sec-divider-lbl {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted);
+  white-space: nowrap;
+}
+
+/* LABEL */
+.lbl {
+  display:block; font-family:var(--mono); font-size:10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:0.1em; color:var(--blue); margin-bottom:6px;
+}
+.lbl-hint {
+  font-size:11px; color:var(--muted); font-family:var(--body-font);
+  text-transform:none; letter-spacing:0; font-weight:400;
+  margin-top:-3px; margin-bottom:7px; display:block;
+}
+
+/* INPUTS */
+input[type="text"],input[type="email"],input[type="tel"],input[type="number"],input[type="date"],select,textarea {
+  width:100%; background:var(--bg2); padding:12px 13px;
+  border-radius:var(--r); border:1px solid var(--slate);
+  margin-bottom:14px; color:var(--text); font-family:var(--body-font);
+  font-size:15px; outline:none; -webkit-appearance:none; appearance:none;
+  transition:border-color var(--tr), box-shadow var(--tr), background-color 0.3s ease;
+  min-height:50px;
+}
+input:focus,select:focus,textarea:focus {
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(220,38,38,0.15), 0 0 14px rgba(220,38,38,0.1);
+}
+body.dark-theme input:focus,body.dark-theme select:focus,body.dark-theme textarea:focus {
+  box-shadow:0 0 0 3px rgba(239,68,68,0.12), 0 0 14px rgba(239,68,68,0.1);
+}
+input::placeholder,textarea::placeholder { color:var(--slate); }
+select {
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 12px center;
+  padding-right:38px; cursor:pointer;
+}
+select option { background:var(--bg2); }
+textarea { min-height:100px; resize:vertical; line-height:1.6; }
+input[type="date"] { cursor:pointer; }
+
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+@media(max-width:430px){ .two-col,.three-col{ grid-template-columns:1fr; } }
+
+/* CHOICE CARDS */
+.choice-group { display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+.choice-group.horiz { flex-direction:row; flex-wrap:wrap; gap:8px; }
+.choice-card {
+  display:flex; align-items:center; gap:12px; padding:12px 14px;
+  border:1px solid var(--border); border-radius:var(--r);
+  background:var(--bg2); cursor:pointer; transition:all var(--tr);
+  user-select:none; -webkit-user-select:none; font-size:14px; color:var(--text);
+}
+.choice-card:hover { border-color:var(--blue); background:rgba(220,38,38,0.04); }
+body.dark-theme .choice-card:hover { background:rgba(239,68,68,0.06); }
+.choice-card input[type="radio"],.choice-card input[type="checkbox"] {
+  width:18px; height:18px; min-height:unset; padding:0; margin:0;
+  border:none; background:none; box-shadow:none; margin-bottom:0;
+  accent-color:var(--blue); cursor:pointer; flex-shrink:0;
+}
+.choice-card input:focus { box-shadow:none; }
+.choice-card.selected {
+  border-color:var(--blue); background:rgba(220,38,38,0.08);
+  box-shadow:0 0 0 1px var(--blue);
+}
+body.dark-theme .choice-card.selected { background:rgba(239,68,68,0.1); }
+.choice-lbl { font-weight:600; color:var(--text); font-size:14px; }
+.choice-sub { font-size:11px; color:var(--muted); margin-top:1px; font-family:var(--body-font); }
+.choice-card.horiz {
+  flex:1; min-width:80px; justify-content:center;
+  flex-direction:column; gap:4px; padding:10px; text-align:center;
+}
+.choice-icon { font-size:18px; margin-bottom:2px; }
+
+/* ACCIDENT TYPE CARDS — larger for step 1 */
+.accident-type-group {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
+}
+.accident-type-card {
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 6px; padding: 14px; border: 1px solid var(--border);
+  border-radius: var(--r); background: var(--bg2); cursor: pointer;
+  transition: all var(--tr); user-select: none;
+}
+.accident-type-card:hover { border-color: var(--blue); background: rgba(220,38,38,0.04); }
+.accident-type-card.selected { border-color:var(--blue); background:rgba(220,38,38,0.08); box-shadow:0 0 0 1px var(--blue); }
+.accident-type-card input { display:none; }
+.at-icon { font-size:22px; }
+.at-name { font-family: var(--font); font-weight: 700; font-size: 13px; color: var(--text); }
+.at-sub { font-size: 10px; color: var(--muted); font-family: var(--body-font); }
+@media(max-width:380px){ .accident-type-group{ grid-template-columns:1fr; } }
+
+/* FIELD ERRORS */
+.fld { margin-bottom: 0; }
+.err {
+  display:none; font-family:var(--mono); font-size:10px; font-weight:700;
+  color:var(--red); margin-top:-8px; margin-bottom:10px;
+  text-transform:uppercase; letter-spacing:0.05em;
+}
+.has-error input,.has-error select,.has-error textarea { border-color:var(--red); box-shadow:0 0 0 3px rgba(220,38,38,0.1); }
+body.dark-theme .has-error input,body.dark-theme .has-error select,body.dark-theme .has-error textarea { box-shadow:0 0 0 3px rgba(239,68,68,0.1); }
+.has-error .err { display:block; animation:shake 0.3s ease; }
+.is-valid input,.is-valid select { border-color:var(--green); }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+
+/* HAS-ERROR for accident type group */
+.fld.has-error .accident-type-group { box-shadow: 0 0 0 2px var(--red); border-radius: var(--r); }
+
+/* INJURY SEVERITY METER */
+.injury-meter {
+  margin-bottom: 14px;
+}
+.injury-meter-track {
+  display: flex; gap: 4px; margin-bottom: 6px;
+}
+.injury-seg {
+  flex: 1; height: 8px; border-radius: 4px;
+  background: var(--bg3); cursor: pointer; transition: all var(--tr);
+}
+.injury-seg.active-1 { background: #16a34a; }
+.injury-seg.active-2 { background: #eab308; }
+.injury-seg.active-3 { background: #f97316; }
+.injury-seg.active-4 { background: #ef4444; }
+.injury-seg.active-5 { background: #991b1b; }
+.injury-meter-labels {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted);
+}
+.injury-meter-val {
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  color: var(--blue); text-transform: uppercase; letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+/* TERMS */
+.terms-box {
+  background:var(--bg); border:1px solid var(--border); border-radius:var(--r);
+  padding:13px 15px; margin-bottom:14px; font-size:12px; color:var(--muted);
+  line-height:1.7; max-height:130px; overflow-y:auto;
+  font-family: var(--body-font);
+  transition:background-color 0.3s ease,border-color 0.3s ease;
+}
+
+/* SIGNATURE */
+.sig-wrap {
+  border:1px solid var(--border); border-radius:var(--r); background:var(--bg2);
+  overflow:hidden; position:relative; transition:border-color var(--tr),background-color 0.3s ease; margin-bottom:14px;
+}
+.sig-wrap:focus-within { border-color:var(--blue); box-shadow:0 0 0 3px rgba(220,38,38,0.15); }
+body.dark-theme .sig-wrap:focus-within { box-shadow:0 0 0 3px rgba(239,68,68,0.12); }
+#sigCanvas { display:block; width:100%; height:110px; cursor:crosshair; touch-action:none; background:#fff; }
+body.dark-theme #sigCanvas { background:#111111; }
+.sig-footer { display:flex; justify-content:space-between; align-items:center; padding:5px 12px; border-top:1px solid var(--border); transition:border-color 0.3s ease; }
+.sig-ph-text { font-family:var(--mono); font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; }
+.sig-clear {
+  font-family:var(--mono); font-size:10px; font-weight:700; color:var(--muted);
+  background:none; border:none; cursor:pointer; text-transform:uppercase;
+  letter-spacing:0.08em; padding:3px 8px; border-radius:5px; transition:all var(--tr);
+}
+.sig-clear:hover { background:rgba(220,38,38,0.08); color:var(--red); }
+.sig-canvas-ph {
+  position:absolute; top:40px; left:50%; transform:translateX(-50%);
+  font-family:var(--mono); font-size:11px; color:var(--slate); pointer-events:none;
+  white-space:nowrap; letter-spacing:0.06em; text-transform:uppercase; transition:color 0.3s ease;
+}
+
+/* BUTTONS */
+.step-nav {
+  display:flex; gap:10px; margin-top:22px; padding-top:18px;
+  border-top:1px solid var(--border); transition:border-color 0.3s ease;
+}
+.btn-back {
+  padding:12px 16px; background:#ffffff; color:var(--muted);
+  border:1px solid var(--border); border-radius:var(--r);
+  font-family:var(--font); font-size:14px; font-weight:700; cursor:pointer;
+  transition:all var(--tr); min-height:50px;
+}
+body.dark-theme .btn-back { background:var(--bg3); color:#94a3b8; }
+.btn-back:hover { border-color:var(--blue); color:var(--blue); }
+.btn-next {
+  flex:1; padding:12px 20px; background:var(--blue-dim); color:#fff;
+  border:none; border-radius:var(--r); font-family:var(--font); font-size:14px;
+  font-weight:800; cursor:pointer; transition:all var(--tr);
+  box-shadow:0 4px 14px rgba(185,28,28,0.3); min-height:50px;
+  text-transform:uppercase; letter-spacing:0.05em;
+}
+.btn-next:hover { background:var(--blue); box-shadow:0 6px 20px rgba(220,38,38,0.4); }
+.btn-submit {
+  flex:1; padding:13px 20px; background:var(--green); color:#fff;
+  border:none; border-radius:var(--r); font-family:var(--font); font-size:14px;
+  font-weight:800; cursor:pointer; transition:all var(--tr);
+  box-shadow:0 4px 14px rgba(22,163,74,0.3); min-height:50px;
+  text-transform:uppercase; letter-spacing:0.06em;
+}
+.btn-submit:hover { background:#15803d; box-shadow:0 6px 20px rgba(22,163,74,0.4); }
+.btn-submit:disabled { background:var(--slate); box-shadow:none; cursor:not-allowed; color:#94a3b8; }
+
+/* SUCCESS */
+.success-screen {
+  display:none; flex-direction:column; align-items:center;
+  text-align:center; padding:48px 26px;
+}
+.success-screen.show { display:flex; animation:fadeUp 0.5s ease both; }
+.success-icon {
+  width:78px; height:78px; border-radius:50%;
+  background:rgba(22,163,74,0.1); border:2px solid var(--green);
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:20px; animation:pop 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.success-icon svg { width:34px; height:34px; stroke:var(--green); fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+.success-screen h2 { font-family:var(--font); font-size:23px; font-weight:800; color:var(--text); margin-bottom:8px; letter-spacing:-0.02em; }
+.success-screen p { font-size:14px; color:var(--muted); line-height:1.7; max-width:340px; font-family:var(--body-font); }
+.success-ref { margin-top:18px; padding:11px 20px; background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); font-family:var(--mono); font-size:13px; color:var(--blue); letter-spacing:0.08em; transition:background-color 0.3s ease,border-color 0.3s ease; }
+.success-note { margin-top:12px; font-size:10px; color:var(--muted); font-family:var(--mono); text-transform:uppercase; letter-spacing:0.06em; }
+@keyframes pop { from{transform:scale(0.4);opacity:0} to{transform:scale(1);opacity:1} }
+
+/* FOOTER */
+.page-footer {
+  margin-top:20px; text-align:center; font-family:var(--mono); font-size:10px;
+  color:var(--muted); line-height:1.9; text-transform:uppercase; letter-spacing:0.1em;
+  z-index:1; position:relative;
+}
+.page-footer a { color:var(--muted); text-decoration:none; transition:color var(--tr); }
+.page-footer a:hover { color:var(--blue); }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+:focus-visible { outline:2px solid var(--blue); outline-offset:3px; border-radius:4px; }
+</style>
+</head>
+
+<body>
+  <!-- THEME TOGGLE -->
+  <div class="theme-toggle-container">
+    <div class="theme-switch" onclick="toggleTheme()">
+      <span class="theme-option light active" id="theme-light">☀️ Light</span>
+      <span class="theme-option dark" id="theme-dark">🌙 Dark</span>
+    </div>
+  </div>
+
+  <!-- ALERT BANNER -->
+  <div class="alert-banner">
+    <div class="alert-pulse"></div>
+    <span>⚠️ Statute of Limitations May Apply — Report Immediately</span>
+  </div>
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <h1>ACCIDENT AI <span>INTAKE</span></h1>
+    <div class="hdr-badges">
+      <span><span class="bdot"></span>Secure Intake</span>
+      <span>&bull;</span>
+      <span>HIPAA Protocol</span>
+      <span>&bull;</span>
+      <span>AES-256</span>
+    </div>
+  </div>
+
+  <!-- CASE TYPE BADGES -->
+  <div class="case-types">
+    <div class="case-type-badge"><div class="ct-dot"></div> Auto vs Auto</div>
+    <div class="case-type-badge"><div class="ct-dot"></div> Rideshare</div>
+    <div class="case-type-badge"><div class="ct-dot"></div> Commercial Truck</div>
+    <div class="case-type-badge"><div class="ct-dot"></div> Hit &amp; Run</div>
+  </div>
+
+  <!-- CARD -->
+  <div class="card">
+    <div class="prog-line" id="progLine" style="width:20%"></div>
+
+    <div class="autosave" id="autosave">
+      <div class="as-dot" id="asDot"></div>
+      <span id="asTxt">Progress saved automatically</span>
+    </div>
+
+    <div class="pip-row">
+      <div class="pip active" id="pip1"><div class="pip-c">1</div><div class="pip-l">Incident</div></div>
+      <div class="pip" id="pip2"><div class="pip-c">2</div><div class="pip-l">Injuries</div></div>
+      <div class="pip" id="pip3"><div class="pip-c">3</div><div class="pip-l">Insurance</div></div>
+      <div class="pip" id="pip4"><div class="pip-c">4</div><div class="pip-l">Consent</div></div>
+    </div>
+
+    <div class="form-body" id="formBody">
+
+      <!-- ===== STEP 1: INCIDENT DETAILS ===== -->
+      <div class="step active" id="step1">
+        <div class="step-title">Incident Report</div>
+        <div class="step-sub">Step 1 of 4 — Accident &amp; Personal Information</div>
+        <div class="notice"><strong>Notice:</strong> This is not legal advice. We are not attorneys. This intake connects you with legal advertising services only. Time limits apply to accident claims.</div>
+
+        <div class="sec-divider"><div class="sec-divider-line"></div><div class="sec-divider-lbl">Your Information</div><div class="sec-divider-line"></div></div>
+
+        <div class="two-col">
+          <div class="fld" id="f-fname">
+            <label class="lbl" for="fname">First Name</label>
+            <input type="text" id="fname" placeholder="First name" autocomplete="given-name">
+            <div class="err">Required</div>
+          </div>
+          <div class="fld" id="f-lname">
+            <label class="lbl" for="lname">Last Name</label>
+            <input type="text" id="lname" placeholder="Last name" autocomplete="family-name">
+            <div class="err">Required</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="fld" id="f-phone">
+            <label class="lbl" for="phone">Phone Number</label>
+            <input type="tel" id="phone" placeholder="(000) 000-0000" autocomplete="tel">
+            <div class="err">Valid phone required</div>
+          </div>
+          <div class="fld" id="f-email">
+            <label class="lbl" for="email">Email Address</label>
+            <input type="email" id="email" placeholder="email@address.com" autocomplete="email">
+            <div class="err">Valid email required</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="fld" id="f-state">
+            <label class="lbl" for="state">State of Accident</label>
+            <select id="state">
+              <option value="">Select state...</option>
+              <option>Alabama</option><option>Alaska</option><option>Arizona</option>
+              <option>Arkansas</option><option>California</option><option>Colorado</option>
+              <option>Connecticut</option><option>Delaware</option><option>Florida</option>
+              <option>Georgia</option><option>Hawaii</option><option>Idaho</option>
+              <option>Illinois</option><option>Indiana</option><option>Iowa</option>
+              <option>Kansas</option><option>Kentucky</option><option>Louisiana</option>
+              <option>Maine</option><option>Maryland</option><option>Massachusetts</option>
+              <option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
+              <option>Missouri</option><option>Montana</option><option>Nebraska</option>
+              <option>Nevada</option><option>New Hampshire</option><option>New Jersey</option>
+              <option>New Mexico</option><option>New York</option><option>North Carolina</option>
+              <option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
+              <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option>
+              <option>South Carolina</option><option>South Dakota</option><option>Tennessee</option>
+              <option>Texas</option><option>Utah</option><option>Vermont</option>
+              <option>Virginia</option><option>Washington</option><option>Washington DC</option>
+              <option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
+              <option>Puerto Rico</option><option>Virgin Islands</option>
+            </select>
+            <div class="err">State required</div>
+          </div>
+          <div class="fld" id="f-accidentDate">
+            <label class="lbl" for="accidentDate">Date of Accident</label>
+            <input type="date" id="accidentDate" onchange="calcDaysSince()">
+            <div class="err">Date required</div>
+          </div>
+        </div>
+
+        <div id="days-since-notice" style="display:none; margin-top:-10px; margin-bottom:14px;"></div>
+
+        <div class="sec-divider"><div class="sec-divider-line"></div><div class="sec-divider-lbl">Accident Type</div><div class="sec-divider-line"></div></div>
+
+        <div class="fld" id="f-accidentType">
+          <label class="lbl">Type of Accident</label>
+          <span class="lbl-hint">Select all that apply to your situation</span>
+          <div class="accident-type-group" id="accidentTypeGroup">
+            <label class="accident-type-card" onclick="selAT(this,'auto')">
+              <input type="radio" name="accidentType" value="Auto vs Auto">
+              <div class="at-icon">🚗</div>
+              <div class="at-name">Auto vs Auto</div>
+              <div class="at-sub">Standard collision between passenger vehicles</div>
+            </label>
+            <label class="accident-type-card" onclick="selAT(this,'rideshare')">
+              <input type="radio" name="accidentType" value="Rideshare">
+              <div class="at-icon">🚕</div>
+              <div class="at-name">Rideshare</div>
+              <div class="at-sub">Uber, Lyft, or other ride-hailing platforms</div>
+            </label>
+            <label class="accident-type-card" onclick="selAT(this,'truck')">
+              <input type="radio" name="accidentType" value="Commercial Truck">
+              <div class="at-icon">🚛</div>
+              <div class="at-name">Commercial Truck</div>
+              <div class="at-sub">Semi, 18-wheeler, or delivery truck involved</div>
+            </label>
+            <label class="accident-type-card" onclick="selAT(this,'hitrun')">
+              <input type="radio" name="accidentType" value="Hit & Run / Uninsured">
+              <div class="at-icon">🚨</div>
+              <div class="at-name">Hit &amp; Run / Uninsured</div>
+              <div class="at-sub">At-fault driver fled or had no insurance</div>
+            </label>
+          </div>
+          <div class="err">Accident type required</div>
+        </div>
+
+        <div class="fld" id="f-atFault">
+          <label class="lbl">Were You At Fault?</label>
+          <span class="lbl-hint">Your honest answer helps us qualify your case accurately</span>
+          <div class="choice-group horiz" role="radiogroup">
+            <label class="choice-card horiz"><input type="radio" name="atFault" value="No" onchange="sel(this)"><div class="choice-lbl">No</div></label>
+            <label class="choice-card horiz"><input type="radio" name="atFault" value="Partially" onchange="sel(this)"><div class="choice-lbl">Partially</div></label>
+            <label class="choice-card horiz"><input type="radio" name="atFault" value="Yes" onchange="sel(this)"><div class="choice-lbl">Yes</div></label>
+            <label class="choice-card horiz"><input type="radio" name="atFault" value="Unknown" onchange="sel(this)"><div class="choice-lbl">Unknown</div></label>
+          </div>
+          <div class="err">Please answer</div>
+        </div>
+
+        <div class="fld" id="f-policeReport">
+          <label class="lbl">Police Report Filed?</label>
+          <div class="choice-group horiz" role="radiogroup">
+            <label class="choice-card horiz"><input type="radio" name="policeReport" value="Yes" onchange="sel(this)"><div class="choice-lbl">Yes</div></label>
+            <label class="choice-card horiz"><input type="radio" name="policeReport" value="No" onchange="sel(this)"><div class="choice-lbl">No</div></label>
+            <label class="choice-card horiz"><input type="radio" name="policeReport" value="Pending" onchange="sel(this)"><div class="choice-lbl">Pending</div></label>
+          </div>
+          <div class="err">Please answer</div>
+        </div>
+
+        <div class="step-nav">
+          <button class="btn-next" onclick="nextStep(1)">Next: Injuries &amp; Medical &rsaquo;</button>
+        </div>
+      </div>
+
+      <!-- ===== STEP 2: INJURIES ===== -->
+      <div class="step" id="step2">
+        <div class="step-title">Injuries &amp; Medical</div>
+        <div class="step-sub">Step 2 of 4 — Describe Your Injuries</div>
+
+        <div class="fld" id="f-injurySeverity">
+          <label class="lbl">Injury Severity</label>
+          <span class="lbl-hint">Click to rate the overall severity of your injuries</span>
+          <div class="injury-meter">
+            <div class="injury-meter-val" id="severityLabel">Select severity below</div>
+            <div class="injury-meter-track">
+              <div class="injury-seg" data-level="1" onclick="setSeverity(1)"></div>
+              <div class="injury-seg" data-level="2" onclick="setSeverity(2)"></div>
+              <div class="injury-seg" data-level="3" onclick="setSeverity(3)"></div>
+              <div class="injury-seg" data-level="4" onclick="setSeverity(4)"></div>
+              <div class="injury-seg" data-level="5" onclick="setSeverity(5)"></div>
+            </div>
+            <div class="injury-meter-labels"><span>Minor</span><span>Moderate</span><span>Severe</span></div>
+          </div>
+          <input type="hidden" id="injurySeverity" value="">
+          <div class="err">Severity required</div>
+        </div>
+
+        <div class="fld" id="f-injuries">
+          <label class="lbl" for="injuries">Injuries Sustained</label>
+          <span class="lbl-hint">List all injuries — e.g. Whiplash, Broken Arm, TBI, Back Injury</span>
+          <input type="text" id="injuries" placeholder="Describe your injuries here">
+          <div class="err">Required</div>
+        </div>
+
+        <div class="fld" id="f-soughtMedical">
+          <label class="lbl">Did You Seek Medical Treatment?</label>
+          <div class="choice-group horiz" role="radiogroup">
+            <label class="choice-card horiz"><input type="radio" name="soughtMedical" value="Yes - Same Day" onchange="sel(this);toggleMedical()"><div class="choice-lbl">Yes — Same Day</div></label>
+            <label class="choice-card horiz"><input type="radio" name="soughtMedical" value="Yes - Within Week" onchange="sel(this);toggleMedical()"><div class="choice-lbl">Yes — Within Week</div></label>
+            <label class="choice-card horiz"><input type="radio" name="soughtMedical" value="Not Yet" onchange="sel(this);toggleMedical()"><div class="choice-lbl">Not Yet</div></label>
+          </div>
+          <div class="err">Please answer</div>
+        </div>
+
+        <div class="fld" id="f-medicalFacility" style="display:none">
+          <label class="lbl" for="medicalFacility">Where Did You Seek Treatment?</label>
+          <select id="medicalFacility">
+            <option value="">Select facility type...</option>
+            <option>Emergency Room / Hospital</option>
+            <option>Urgent Care</option>
+            <option>Primary Care Doctor</option>
+            <option>Specialist / Orthopedic</option>
+            <option>Chiropractor</option>
+            <option>Physical Therapy</option>
+            <option>Multiple Facilities</option>
+          </select>
+          <div class="err">Required</div>
+        </div>
+
+        <div class="fld" id="f-hospitalized">
+          <label class="lbl">Were You Hospitalized?</label>
+          <div class="choice-group horiz" role="radiogroup">
+            <label class="choice-card horiz"><input type="radio" name="hospitalized" value="Yes" onchange="sel(this)"><div class="choice-lbl">Yes</div></label>
+            <label class="choice-card horiz"><input type="radio" name="hospitalized" value="No" onchange="sel(this)"><div class="choice-lbl">No</div></label>
+          </div>
+          <div class="err">Please answer</div>
+        </div>
+
+        <div class="fld" id="f-missedWork">
+          <label class="lbl">Time Missed From Work?</label>
+          <select id="missedWork">
+            <option value="">Select time missed...</option>
+            <option value="None">None</option>
+            <option value="1-3 Days">1–3 Days</option>
+            <option value="1 Week">About 1 Week</option>
+            <option value="2-4 Weeks">2–4 Weeks</option>
+            <option value="1-3 Months">1–3 Months</option>
+            <option value="3+ Months">3+ Months / Ongoing</option>
+            <option value="Permanently Unable">Permanently Unable to Work</option>
+          </select>
+          <div class="err">Required</div>
+        </div>
+
+        <div class="fld" id="f-injuryDesc">
+          <label class="lbl" for="injuryDesc">Injury Description</label>
+          <span class="lbl-hint">Describe how the accident and injuries have affected your daily life</span>
+          <textarea id="injuryDesc" placeholder="Describe your pain, limitations, treatment, and how this has impacted your work and daily activities..."></textarea>
+          <div class="err">Description required</div>
+        </div>
+
+        <div class="step-nav">
+          <button class="btn-back" onclick="prevStep(2)">Back</button>
+          <button class="btn-next" onclick="nextStep(2)">Next: Insurance Info &rsaquo;</button>
+        </div>
+      </div>
+
+      <!-- ===== STEP 3: INSURANCE ===== -->
+      <div class="step" id="step3">
+        <div class="step-title">Insurance &amp; Liability</div>
+        <div class="step-sub">Step 3 of 4 — Coverage &amp; Claim Status</div>
+
+        <div class="fld" id="f-hasInsurance">
+          <label class="lbl">Do You Have Auto Insurance?</label>
+          <div class="choice-group horiz" role="radiogroup">
+            <label class="choice-card horiz"><input type="radio" name="hasInsurance" value="Yes" onchange="sel(this);toggleInsuranceFields()"><div class="choice-lbl">Yes</div></label>
+            <label class="choice-card horiz"><input type="radio" name="hasInsurance" value="No" onchange="sel(this);toggleInsuranceFields()"><div class="choice-lbl">No</div></label>
+            <label class="choice-card horiz"><input type="radio" name="hasInsurance" value="Unknown" onchange="sel(this);toggleInsuranceFields()"><div class="choice-lbl">Unknown</div></label>
+          </div>
+          <div class="err">Please answer</div>
+        </div>
+
+        <div id="insurance-fields" style="display:none">
+          <div class="fld" id="f-insurer">
+            <label class="lbl" for="insurer">Your Insurance Company</label>
+            <input type="text" id="insurer" placeholder="e.g. State Farm, Allstate, GEICO">
+            <div class="err">Required</div>
+          </div>
+        </div>
+
+        <div class="fld" id="f-otherInsurance">
+          <label class="lbl">Did Other Driver Have Insurance?</label>
+          <div class="choice-group horiz" role="radiogroup">
+            <label class="choice-card horiz"><input type="radio" name="otherInsurance" value="Yes" onchange="sel(this)"><div class="choice-lbl">Yes</div></label>
+            <label class="choice-card horiz"><input type="radio" name="otherInsurance" value="No" onchange="sel(this)"><div class="choice-lbl">No</div></label>
+            <label class="choice-card horiz"><input type="radio" name="otherInsurance" value="Unknown" onchange="sel(this)"><div class="choice-lbl">Unknown</div></label>
+          </div>
+          <div class="err">Please answer</div>
+        </div>
+
+        <div class="fld" id="f-claimFiled">
+          <label class="lbl">Has an Insurance Claim Been Filed?</label>
+          <div class="choice-group horiz" role="radiogroup">
+            <label class="choice-card horiz"><input type="radio" name="claimFiled" value="Yes" onchange="sel(this);toggleClaimFields()"><div class="choice-lbl">Yes</div></label>
+            <label class="choice-card horiz"><input type="radio" name="claimFiled" value="No" onchange="sel(this);toggleClaimFields()"><div class="choice-lbl">No</div></label>
+            <label class="choice-card horiz"><input type="radio" name="claimFiled" value="In Progress" onchange="sel(this);toggleClaimFields()"><div class="choice-lbl">In Progress</div></label>
+          </div>
+          <div class="err">Please answer</div>
+        </div>
+
+        <div id="claim-fields" style="display:none">
+          <div class="fld" id="f-settlementOffered">
+            <label class="lbl">Has a Settlement Been Offered?</label>
+            <div class="choice-group horiz" role="radiogroup">
+              <label class="choice-card horiz"><input type="radio" name="settlementOffered" value="Yes" onchange="sel(this)"><div class="choice-lbl">Yes</div></label>
+              <label class="choice-card horiz"><input type="radio" name="settlementOffered" value="No" onchange="sel(this)"><div class="choice-lbl">No</div></label>
+            </div>
+            <div class="err">Please answer</div>
+          </div>
+        </div>
+
+        <div class="fld" id="f-hasAttorney">
+          <label class="lbl">Do You Currently Have an Attorney?</label>
+          <div class="choice-group horiz" role="radiogroup">
+            <label class="choice-card horiz"><input type="radio" name="hasAttorney" value="Yes" onchange="sel(this)"><div class="choice-lbl">Yes</div></label>
+            <label class="choice-card horiz"><input type="radio" name="hasAttorney" value="No" onchange="sel(this)"><div class="choice-lbl">No</div></label>
+          </div>
+          <div class="err">Please answer</div>
+        </div>
+
+        <div class="fld" id="f-damageEst">
+          <label class="lbl" for="damageEst">Estimated Total Damages</label>
+          <span class="lbl-hint">Include medical bills, lost wages, vehicle damage (approximate is fine)</span>
+          <select id="damageEst">
+            <option value="">Select range...</option>
+            <option value="Under $5K">Under $5,000</option>
+            <option value="$5K-$25K">$5,000 – $25,000</option>
+            <option value="$25K-$100K">$25,000 – $100,000</option>
+            <option value="$100K-$500K">$100,000 – $500,000</option>
+            <option value="$500K+">$500,000+</option>
+            <option value="Unknown">Unknown / Not Sure</option>
+          </select>
+          <div class="err">Required</div>
+        </div>
+
+        <div class="step-nav">
+          <button class="btn-back" onclick="prevStep(3)">Back</button>
+          <button class="btn-next" onclick="nextStep(3)">Next: Consent &amp; Sign &rsaquo;</button>
+        </div>
+      </div>
+
+      <!-- ===== STEP 4: CONSENT ===== -->
+      <div class="step" id="step4">
+        <div class="step-title">Consent &amp; Signature</div>
+        <div class="step-sub">Step 4 of 4 — Review and sign to complete</div>
+
+        <div class="terms-box" tabindex="0">
+          <strong style="color:var(--blue)">Terms of Consent</strong><br><br>
+          By submitting this form I confirm: (1) All information provided is true and accurate to the best of my knowledge. (2) This is not legal advice and the review team are not attorneys. (3) I consent to being contacted by legal advertising partners regarding my accident case. (4) My information will be securely stored and used only to connect me with legal advertising services. (5) Submission does not guarantee legal representation. (6) I understand that statute of limitations laws apply and time is of the essence. (7) I may withdraw consent at any time by contacting the intake team.
+        </div>
+
+        <div class="fld" id="f-consent1">
+          <label class="choice-card" style="cursor:pointer;margin-bottom:8px;">
+            <input type="checkbox" id="consent1" onchange="sel(this)">
+            <div>
+              <div class="choice-lbl">I have read and agree to the terms above</div>
+            </div>
+          </label>
+          <div class="err">Agreement required</div>
+        </div>
+
+        <div class="fld" id="f-consent2">
+          <label class="choice-card" style="cursor:pointer">
+            <input type="checkbox" id="consent2" onchange="sel(this)">
+            <div>
+              <div class="choice-lbl">I confirm all information is accurate and truthful</div>
+            </div>
+          </label>
+          <div class="err">Confirmation required</div>
+        </div>
+
+        <div class="fld" id="f-sig" style="margin-top:14px">
+          <label class="lbl">Digital Signature</label>
+          <span class="lbl-hint">Draw your signature using your mouse or finger</span>
+          <div class="sig-wrap">
+            <canvas id="sigCanvas" width="600" height="110" tabindex="0"></canvas>
+            <div class="sig-canvas-ph" id="sigPh">Draw signature here</div>
+            <div class="sig-footer">
+              <span class="sig-ph-text" id="sigStatus">Awaiting signature...</span>
+              <button type="button" class="sig-clear" onclick="clearSig()">Clear</button>
+            </div>
+          </div>
+          <div class="err">Signature required</div>
+        </div>
+
+        <div class="step-nav">
+          <button class="btn-back" onclick="prevStep(4)">Back</button>
+          <button class="btn-submit" id="submitBtn" onclick="submitForm()">
+            <span id="submitLbl">Complete Submission</span>
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /form-body -->
+
+    <!-- SUCCESS -->
+    <div class="success-screen" id="successScreen" role="alert" aria-live="polite">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      </div>
+      <h2>Case Submitted</h2>
+      <p>Your accident intake has been received. A team member will contact you within 1–2 business days to discuss your case.</p>
+      <div class="success-ref">REF# <span id="refNum">—</span></div>
+      <p class="success-note">Not legal advice • Submission does not guarantee representation</p>
+    </div>
+
+  </div><!-- /card -->
+
+  <div class="page-footer">
+    Security: AES-256 • HIPAA Protocol • 2026 Ready<br>
+    <a href="#">Privacy Policy</a> • <a href="#">Terms</a> • Not legal advice
+  </div>
+
+<script>
+  // ===== CONFIGURATION =====
+  const SUBMIT_URL = "https://script.google.com/macros/s/AKfycbxI9gWvKnXt7E66K144fY44HfXEGYfgnm8vjFXn1VB5zOASAbcOgzk4dKiRub9BDo4/exec";
+  // NOTE: Replace SUBMIT_URL with your new Car Accident Google Apps Script URL
+
+  const STEPS_CFG = [{ pct:"20%" }, { pct:"50%" }, { pct:"75%" }, { pct:"92%" }];
+  let current = 1, asTimer, sigEmpty = true, drawing = false;
+  let injurySeverityLevel = 0;
+  const severityLabels = ['','Minor — Pain / Soreness','Moderate — Visible Injury','Significant — Requires Ongoing Treatment','Serious — Surgery / Long-term Impact','Critical — Life-altering / Permanent'];
+
+  // ===== THEME =====
+  function toggleTheme() {
+    const body = document.body;
+    const lightOption = document.getElementById('theme-light');
+    const darkOption = document.getElementById('theme-dark');
+    const metaThemeColor = document.getElementById('theme-color');
+    body.classList.toggle('dark-theme');
+    if (body.classList.contains('dark-theme')) {
+      lightOption.classList.remove('active'); darkOption.classList.add('active');
+      metaThemeColor.setAttribute('content','#0a0a0a');
+      if (ctx) ctx.strokeStyle = '#f87171';
+    } else {
+      lightOption.classList.add('active'); darkOption.classList.remove('active');
+      metaThemeColor.setAttribute('content','#ffffff');
+      if (ctx) ctx.strokeStyle = '#dc2626';
+    }
+    localStorage.setItem('theme', body.classList.contains('dark-theme') ? 'dark' : 'light');
+  }
+
+  function loadThemePreference() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-theme');
+      document.getElementById('theme-light').classList.remove('active');
+      document.getElementById('theme-dark').classList.add('active');
+      document.getElementById('theme-color').setAttribute('content','#0a0a0a');
+    }
+  }
+
+  // ===== AUTOSAVE =====
+  function triggerAS() {
+    const el = document.getElementById('autosave'), txt = document.getElementById('asTxt');
+    el.className = 'autosave saving'; txt.textContent = 'Saving...';
+    clearTimeout(asTimer);
+    asTimer = setTimeout(() => {
+      el.className = 'autosave saved'; txt.textContent = 'Saved';
+      setTimeout(() => { el.className = 'autosave'; txt.textContent = 'Progress saved automatically'; }, 2200);
+    }, 700);
+  }
+  document.querySelectorAll('input,select,textarea').forEach(el => {
+    el.addEventListener('change', triggerAS);
+    el.addEventListener('input', triggerAS);
+  });
+
+  // ===== CHOICE HIGHLIGHT =====
+  function sel(input) {
+    if (input.type === 'radio') {
+      document.querySelectorAll(`input[name="${input.name}"]`).forEach(r => {
+        if (r.closest('.choice-card')) r.closest('.choice-card').classList.remove('selected');
+      });
+    }
+    if (input.closest('.choice-card')) {
+      input.closest('.choice-card').classList.toggle('selected', input.checked || input.type === 'radio');
+    }
+  }
+
+  // ===== ACCIDENT TYPE CARDS =====
+  function selAT(card, type) {
+    document.querySelectorAll('.accident-type-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    card.querySelector('input').checked = true;
+    document.getElementById('f-accidentType').classList.remove('has-error');
+  }
+
+  // ===== DATE LOGIC =====
+  function calcDaysSince() {
+    const dateVal = document.getElementById('accidentDate').value;
+    if (!dateVal) return;
+    const accDate = new Date(dateVal);
+    const today = new Date();
+    const diffMs = today - accDate;
+    const diffDays = Math.floor(diffMs / (1000*60*60*24));
+    const notice = document.getElementById('days-since-notice');
+
+    if (diffDays < 0) { notice.style.display='none'; return; }
+
+    let bg, color, msg;
+    if (diffDays <= 30) {
+      bg='rgba(22,163,74,0.08)'; color='#16a34a';
+      msg = `✅ ${diffDays} days since accident — Filing window is still strong.`;
+    } else if (diffDays <= 180) {
+      bg='rgba(234,179,8,0.08)'; color='#ca8a04';
+      msg = `⚠️ ${diffDays} days since accident — Act soon. Statute of limitations varies by state.`;
+    } else if (diffDays <= 730) {
+      bg='rgba(249,115,22,0.08)'; color='#ea580c';
+      msg = `🔶 ${diffDays} days since accident — Time is running out. Many states have a 2-year limit.`;
+    } else {
+      bg='rgba(220,38,38,0.08)'; color='#dc2626';
+      msg = `🚨 ${diffDays} days since accident — Statute of limitations may have expired. Submit immediately.`;
+    }
+
+    notice.style.display = 'block';
+    notice.innerHTML = `<div style="background:${bg};border:1px solid ${color}33;border-radius:8px;padding:9px 12px;font-family:var(--mono);font-size:10px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:0.06em;">${msg}</div>`;
+  }
+
+  // ===== INJURY SEVERITY METER =====
+  function setSeverity(level) {
+    injurySeverityLevel = level;
+    document.getElementById('injurySeverity').value = severityLabels[level];
+    document.getElementById('severityLabel').textContent = severityLabels[level];
+    const colorClass = `active-${level}`;
+    document.querySelectorAll('.injury-seg').forEach((seg, i) => {
+      seg.className = 'injury-seg';
+      if (i < level) seg.classList.add(colorClass);
+    });
+    document.getElementById('f-injurySeverity').classList.remove('has-error');
+  }
+
+  // ===== CONDITIONAL TOGGLES =====
+  function toggleMedical() {
+    const c = document.querySelector('input[name="soughtMedical"]:checked');
+    const mf = document.getElementById('f-medicalFacility');
+    mf.style.display = (c && c.value !== 'Not Yet') ? 'block' : 'none';
+  }
+
+  function toggleInsuranceFields() {
+    const c = document.querySelector('input[name="hasInsurance"]:checked');
+    const f = document.getElementById('insurance-fields');
+    f.style.display = (c && c.value === 'Yes') ? 'block' : 'none';
+  }
+
+  function toggleClaimFields() {
+    const c = document.querySelector('input[name="claimFiled"]:checked');
+    const f = document.getElementById('claim-fields');
+    f.style.display = (c && c.value !== 'No') ? 'block' : 'none';
+  }
+
+  // ===== VALIDATION =====
+  function validate(step) {
+    let ok = true;
+
+    function chk(fid, iid, type) {
+      const f = document.getElementById(fid); if (!f) return;
+      f.classList.remove('has-error','is-valid');
+      const el = document.getElementById(iid); if (!el) return;
+      let fail = !el.value.toString().trim();
+      if (iid === 'email' && el.value.trim()) fail = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value);
+      if (fail) { f.classList.add('has-error'); ok = false; }
+      else if (el.value.trim()) f.classList.add('is-valid');
+    }
+
+    function chkR(fid, name) {
+      const f = document.getElementById(fid); if (!f) return;
+      f.classList.remove('has-error');
+      if (!document.querySelector(`input[name="${name}"]:checked`)) { f.classList.add('has-error'); ok = false; }
+    }
+
+    function chkC(fid, iid) {
+      const f = document.getElementById(fid), el = document.getElementById(iid);
+      if (!f || !el) return;
+      f.classList.remove('has-error');
+      if (!el.checked) { f.classList.add('has-error'); ok = false; }
+    }
+
+    if (step === 1) {
+      chk('f-fname','fname'); chk('f-lname','lname');
+      chk('f-phone','phone'); chk('f-email','email');
+      chk('f-state','state'); chk('f-accidentDate','accidentDate');
+      // Check accident type
+      const f = document.getElementById('f-accidentType');
+      f.classList.remove('has-error');
+      if (!document.querySelector('input[name="accidentType"]:checked')) { f.classList.add('has-error'); ok = false; }
+      chkR('f-atFault','atFault'); chkR('f-policeReport','policeReport');
+    }
+    if (step === 2) {
+      // Severity
+      const sf = document.getElementById('f-injurySeverity');
+      sf.classList.remove('has-error');
+      if (!injurySeverityLevel) { sf.classList.add('has-error'); ok = false; }
+      chk('f-injuries','injuries'); chkR('f-soughtMedical','soughtMedical');
+      chkR('f-hospitalized','hospitalized'); chk('f-missedWork','missedWork');
+      chk('f-injuryDesc','injuryDesc');
+    }
+    if (step === 3) {
+      chkR('f-hasInsurance','hasInsurance'); chkR('f-otherInsurance','otherInsurance');
+      chkR('f-claimFiled','claimFiled'); chkR('f-hasAttorney','hasAttorney');
+      chk('f-damageEst','damageEst');
+    }
+    if (step === 4) {
+      chkC('f-consent1','consent1'); chkC('f-consent2','consent2');
+      if (sigEmpty) { document.getElementById('f-sig').classList.add('has-error'); ok = false; }
+    }
+    return ok;
+  }
+
+  // ===== NAVIGATION =====
+  function nextStep(from) {
+    if (!validate(from)) {
+      const e = document.querySelector(`#step${from} .has-error`);
+      if (e) e.scrollIntoView({ behavior:'smooth', block:'center' });
+      return;
+    }
+    document.getElementById('step'+from).classList.remove('active');
+    current = from + 1;
+    document.getElementById('step'+current).classList.add('active');
+    document.getElementById('pip'+from).classList.remove('active');
+    document.getElementById('pip'+from).classList.add('done');
+    document.getElementById('pip'+current).classList.add('active');
+    document.getElementById('progLine').style.width = STEPS_CFG[current-1].pct;
+    window.scrollTo({ top:0, behavior:'smooth' });
+  }
+
+  function prevStep(from) {
+    document.getElementById('step'+from).classList.remove('active');
+    current = from - 1;
+    document.getElementById('step'+current).classList.add('active');
+    document.getElementById('pip'+from).classList.remove('active','done');
+    document.getElementById('pip'+current).classList.add('active');
+    document.getElementById('pip'+current).classList.remove('done');
+    document.getElementById('progLine').style.width = STEPS_CFG[current-1].pct;
+    window.scrollTo({ top:0, behavior:'smooth' });
+  }
+
+  // ===== SIGNATURE =====
+  const canvas = document.getElementById('sigCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function resizeSig() {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    ctx.strokeStyle = document.body.classList.contains('dark-theme') ? '#f87171' : '#dc2626';
+    ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  }
+  resizeSig();
+  window.addEventListener('resize', resizeSig);
+
+  function getPos(e) {
+    const r = canvas.getBoundingClientRect();
+    const s = e.touches ? e.touches[0] : e;
+    return { x: s.clientX - r.left, y: s.clientY - r.top };
+  }
+
+  canvas.addEventListener('mousedown', e => { drawing=true; const p=getPos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); });
+  canvas.addEventListener('mousemove', e => { if (!drawing) return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); onSig(); });
+  canvas.addEventListener('mouseup', () => drawing=false);
+  canvas.addEventListener('mouseleave', () => drawing=false);
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing=true; const p=getPos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); }, { passive:false });
+  canvas.addEventListener('touchmove', e => { e.preventDefault(); if (!drawing) return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); onSig(); }, { passive:false });
+  canvas.addEventListener('touchend', () => drawing=false);
+
+  function onSig() {
+    sigEmpty=false;
+    document.getElementById('sigPh').style.opacity='0';
+    document.getElementById('sigStatus').textContent='Signature recorded';
+    document.getElementById('f-sig').classList.remove('has-error');
+  }
+
+  function clearSig() {
+    const rect = canvas.getBoundingClientRect();
+    ctx.clearRect(0,0,rect.width,rect.height);
+    sigEmpty=true;
+    document.getElementById('sigPh').style.opacity='1';
+    document.getElementById('sigStatus').textContent='Awaiting signature...';
+  }
+
+  // ===== FINAL CASE SCORE (ATTORNEY EYES ONLY) =====
+  function calcCaseScore(p) {
+    let s = 0;
+
+    // Injury Severity (0-30 pts)
+    const sevMap = {
+      'Minor — Pain / Soreness': 5,
+      'Moderate — Visible Injury': 12,
+      'Significant — Requires Ongoing Treatment': 20,
+      'Serious — Surgery / Long-term Impact': 27,
+      'Critical — Life-altering / Permanent': 30
+    };
+    s += sevMap[p.injurySeverity] || 0;
+
+    // Medical treatment (0-15 pts)
+    if (p.soughtMedical === 'Yes - Same Day') s += 15;
+    else if (p.soughtMedical === 'Yes - Within Week') s += 10;
+    else s += 2;
+
+    // Hospitalization (0-10 pts)
+    if (p.hospitalized === 'Yes') s += 10;
+
+    // Missed work (0-15 pts)
+    const workMap = { 'None':0, '1-3 Days':3, '1 Week':6, '2-4 Weeks':10, '1-3 Months':13, '3+ Months':15, 'Permanently Unable':15 };
+    s += workMap[p.missedWork] || 0;
+
+    // At fault (0-10 pts)
+    if (p.atFault === 'No') s += 10;
+    else if (p.atFault === 'Unknown') s += 6;
+    else if (p.atFault === 'Partially') s += 3;
+
+    // Police report (0-5 pts)
+    if (p.policeReport === 'Yes') s += 5;
+    else if (p.policeReport === 'Pending') s += 2;
+
+    // Damage estimate (0-10 pts)
+    const dmgMap = { 'Under $5K':1, '$5K-$25K':5, '$25K-$100K':8, '$100K-$500K':10, '$500K+':10, 'Unknown':4 };
+    s += dmgMap[p.damageEst] || 0;
+
+    // Accident type bonus (0-5 pts)
+    if (p.accidentType === 'Commercial Truck') s += 5;
+    else if (p.accidentType === 'Rideshare') s += 4;
+    else if (p.accidentType === 'Hit & Run / Uninsured') s += 3;
+    else s += 2;
+
+    // No prior attorney (0-5 pts)
+    if (p.hasAttorney === 'No') s += 5;
+
+    return Math.min(Math.round(s), 100);
+  }
+
+  // ===== SUBMIT =====
+  async function submitForm() {
+    if (!validate(4)) return;
+    const btn = document.getElementById('submitBtn');
+    const lbl = document.getElementById('submitLbl');
+    btn.disabled = true; lbl.textContent = 'Submitting...';
+
+    const p = {
+      action: 'submit_accident_lead',
+      name: (document.getElementById('fname').value + ' ' + document.getElementById('lname').value).trim(),
+      phone: document.getElementById('phone').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      state: document.getElementById('state').value,
+      accidentDate: document.getElementById('accidentDate').value,
+      accidentType: document.querySelector('input[name="accidentType"]:checked')?.value || '',
+      atFault: document.querySelector('input[name="atFault"]:checked')?.value || '',
+      policeReport: document.querySelector('input[name="policeReport"]:checked')?.value || '',
+      injurySeverity: document.getElementById('injurySeverity').value,
+      injuries: document.getElementById('injuries').value.trim(),
+      soughtMedical: document.querySelector('input[name="soughtMedical"]:checked')?.value || '',
+      medicalFacility: document.getElementById('medicalFacility')?.value || '',
+      hospitalized: document.querySelector('input[name="hospitalized"]:checked')?.value || '',
+      missedWork: document.getElementById('missedWork').value,
+      injuryDesc: document.getElementById('injuryDesc').value.trim(),
+      hasInsurance: document.querySelector('input[name="hasInsurance"]:checked')?.value || '',
+      insurer: document.getElementById('insurer')?.value?.trim() || '',
+      otherInsurance: document.querySelector('input[name="otherInsurance"]:checked')?.value || '',
+      claimFiled: document.querySelector('input[name="claimFiled"]:checked')?.value || '',
+      settlementOffered: document.querySelector('input[name="settlementOffered"]:checked')?.value || 'N/A',
+      hasAttorney: document.querySelector('input[name="hasAttorney"]:checked')?.value || '',
+      damageEst: document.getElementById('damageEst').value,
+      hasSig: 'YES',
+      timestamp: new Date().toISOString(),
+    };
+
+    // Calculate attorney-only score — included in payload, not shown to user
+    p.ATTORNEY_SCORE = calcCaseScore(p);
+    p.ATTORNEY_SCORE_LABEL = p.ATTORNEY_SCORE >= 80 ? 'HIGH VALUE' : p.ATTORNEY_SCORE >= 60 ? 'MODERATE' : 'LOW';
+
+    try {
+      await fetch(SUBMIT_URL + '?' + new URLSearchParams(p).toString(), { method:'GET', mode:'no-cors' });
+    } catch(e) {}
+
+    document.getElementById('refNum').textContent = 'ACC-' + Date.now().toString(36).toUpperCase().slice(-6);
+    document.getElementById('formBody').style.display = 'none';
+    document.getElementById('autosave').style.display = 'none';
+    document.getElementById('successScreen').classList.add('show');
+    document.getElementById('progLine').style.width = '100%';
+    [1,2,3,4].forEach(n => {
+      document.getElementById('pip'+n).classList.add('done');
+      document.getElementById('pip'+n).classList.remove('active');
+    });
+  }
+
+  // ===== INIT =====
+  loadThemePreference();
+</script>
+</body>
+</html>
