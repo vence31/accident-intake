@@ -953,7 +953,7 @@ body.dark-theme .btn-back { background:var(--bg3); color:#94a3b8; }
 
 <script>
   // ===== CONFIGURATION =====
-  const SUBMIT_URL = "https://script.google.com/macros/s/AKfycbxI9gWvKnXt7E66K144fY44HfXEGYfgnm8vjFXn1VB5zOASAbcOgzk4dKiRub9BDo4/exec";
+  const SUBMIT_URL = "https://script.google.com/macros/s/AKfycbxs8vw-jadNBh6SOq_uPdz6mMPGXQvoeMGoW7ZGbPbKTaBG1xvrvmST6Pmoc7NLtNM/exec";
   // NOTE: Replace SUBMIT_URL with your new Car Accident Google Apps Script URL
 
   const STEPS_CFG = [{ pct:"20%" }, { pct:"50%" }, { pct:"75%" }, { pct:"92%" }];
@@ -1277,7 +1277,7 @@ body.dark-theme .btn-back { background:var(--bg3); color:#94a3b8; }
     btn.disabled = true; lbl.textContent = 'Submitting...';
 
     const p = {
-      action: 'submit_accident_lead',
+      action: 'submit_lead',
       name: (document.getElementById('fname').value + ' ' + document.getElementById('lname').value).trim(),
       phone: document.getElementById('phone').value.trim(),
       email: document.getElementById('email').value.trim(),
